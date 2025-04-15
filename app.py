@@ -24,7 +24,8 @@ ROOT_DIR = os.path.abspath(_temp_root)
 
 print(f"--- Serving files from: {ROOT_DIR} ---")
 print(f"--- Security Token: {SECURITY_TOKEN} (Do NOT use this in production!) ---")
-# Create a dummy file and folder for testing
+
+
 Path(os.path.join(ROOT_DIR, "welcome.txt")).touch(exist_ok=True)
 os.makedirs(os.path.join(ROOT_DIR, "example_subdir"), exist_ok=True)
 Path(os.path.join(ROOT_DIR, "example_subdir", "nested_file.md")).touch(exist_ok=True)
