@@ -1,0 +1,11 @@
+/* Add any custom styles here if needed */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  main.container {
+    flex: 1;
+    margin-bottom: 2rem; /* Add some space at the bottom */
+  }

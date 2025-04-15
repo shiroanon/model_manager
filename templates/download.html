@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Download & Create Link{% endblock %}
+
+{% block content %}
+<h2>Download File via URL and Create Symbolic Link</h2>
+<p>This tool will download a file using <code>wget</code> to a temporary location (<code>{{ temp_dir }}</code>) and then create a symbolic link (<code>ln -s</code>) to it from your chosen directory within the browser root (<code>{{ root_dir_short }}</code>).</p>
+
+<form method="POST" action="{{ url_for('download_ui', token=token) }}">
+    <div class="mb-3">
+        <label for="url" class="form-label">URL to Download:</label>
+        <input type="url" class="form-control" id="url" name="url" required placeholder="https://example.com/file.zip">
+        <small class="form-text text-muted">The security token <code>?token={{ token }}</code> will be automatically appended to this URL during the wget command.</small>
+    </div>
+
+    <div class="mb-3">
+        <label for="filename" class="form-label">Desired Filename (in <code>{{ temp_dir }}</code> and for the link):</label>
+        <input type="text" class="form-control" id="filename" name="filename" required pattern="[a-zA-Z0-9._-]+" placeholder="myfile.zip">
+         <small class="form-text text-muted">Required. Use safe characters only (letters, numbers, dot, underscore, hyphen). No spaces or slashes.</small>
+    </div>
+
+    <div class="mb-3">
+        <label for="target_dir_rel" class="form-label">Target Directory for Symbolic Link:</label>
+        <select class="form-select" id="target_dir_rel" name="target_dir_rel" required>
+            <option value="" selected disabled>-- Select a directory --</option>
+            <option value=".">Root ({{ root_dir_short }}/)</option>
+            {% for dir_path in available_dirs %}
+                <option value="{{ dir_path }}">{{ root_dir_short }}/{{ dir_path }}/</option>
+            {% endfor %}
+        </select>
+         <small class="form-text text-muted">The symbolic link <code>{{ temp_dir }}/<filename></code> → <code>{{ root_dir_short }}/<target_dir>/<filename></code> will be created.</small>
+    </div>
+
+    <button type="submit" class="btn btn-primary"><i class="fas fa-download"></i> Download and Create Link</button>
+</form>
+
+{% endblock %}

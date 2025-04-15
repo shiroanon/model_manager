@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Browse: {{ current_path_display }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('browse') }}"><i class="fas fa-home"></i> Root</a></li>
+        {% for part, path_so_far in breadcrumbs %}
+            {% if loop.last %}
+                <li class="breadcrumb-item active" aria-current="page">{{ part }}</li>
+            {% else %}
+                <li class="breadcrumb-item"><a href="{{ url_for('browse', subpath=path_so_far) }}">{{ part }}</a></li>
+            {% endif %}
+        {% endfor %}
+    </ol>
+</nav>
+
+<h2>Contents of {{ current_path_display }}</h2>
+
+<ul class="list-group">
+    {% if parent_path is not none %}
+    <li class="list-group-item list-group-item-action">
+        <a href="{{ url_for('browse', subpath=parent_path) }}" class="text-decoration-none">
+             <i class="fas fa-arrow-up icon text-secondary"></i> Parent Directory
+        </a>
+        <span class="item-actions"></span> {# Empty span to align items #}
+    </li>
+    {% endif %}
+
+    {% for item in items %}
+    <li class="list-group-item list-group-item-action">
+        {% if item.is_dir %}
+            <a href="{{ url_for('browse', subpath=item.rel_path) }}" class="text-decoration-none">
+                <i class="fas fa-folder icon text-warning"></i> {{ item.name }}
+            </a>
+        {% else %}
+            <span>
+                 <i class="fas fa-file icon text-info"></i> {{ item.name }}
+            </span>
+        {% endif %}
+        <span class="item-actions">
+             <a href="{{ url_for('delete_item', subpath=item.rel_path, token=token) }}"
+                class="btn btn-sm btn-outline-danger ms-2"
+                onclick="return confirm('Are you sure you want to delete \'{{ item.name }}\'? This cannot be undone.');">
+                 <i class="fas fa-trash-alt"></i> Delete
+             </a>
+        </span>
+    </li>
+    {% else %}
+    <li class="list-group-item">This directory is empty.</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
