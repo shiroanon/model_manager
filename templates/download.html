@@ -41,20 +41,16 @@
 <script>
 const models = {
     "Model A": {
-        url: "https://example.com/model-a.bin",
-        filename: "model-a.bin",
-        directory: "example_subdir"
+        url: "https://huggingface.co/lokCX/4x-Ultrasharp/resolve/main/4x-UltraSharp.pth?download=true",
+        filename: "4x-UltraSharp.pth",
+        directory:"./ComfyUI/models/upscale_models/4x-UltraSharp"
     },
     "Model B": {
-        url: "https://example.com/model-b.bin",
-        filename: "model-b.bin",
-        directory: "."
+        url: "https://huggingface.co/ShashwatDifff/Vanadium/resolve/main/modelIV.safetensors?download=true",
+        filename: "modelIV.safetensors",
+        directory: "./ComfyUI/models/checkpoints"
     },
-    "Model C": {
-        url: "https://example.com/model-c.bin",
-        filename: "model-c.bin",
-        directory: "example_subdir"
-    }
+
 };
 
 const token = "{{ token }}";
