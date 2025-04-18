@@ -3,24 +3,24 @@
 {% block title %}Download & Create Link{% endblock %}
 
 {% block content %}
-<h2>Download File via URL and Create Symbolic Link</h2>
-<p>This tool will download a file using <code>wget</code> to a temporary location (<code>{{ temp_dir }}</code>) and then create a symbolic link (<code>ln -s</code>) to it from your chosen directory within the browser root (<code>{{ root_dir_short }}</code>).</p>
+<h2>Predefined Model Downloads</h2>
 
-<form method="POST" action="{{ url_for('download_ui', token=token) }}">
+<div id="modelList" class="list-group mb-4">
+    <!-- JS will populate model buttons -->
+</div>
+
+<h2 class="mt-4">Manual File Download</h2>
+<form id="manualForm">
     <div class="mb-3">
-        <label for="url" class="form-label">URL to Download:</label>
-        <input type="url" class="form-control" id="url" name="url" required placeholder="https://example.com/file.zip">
-        <small class="form-text text-muted">The security token <code>?token={{ token }}</code> will be automatically appended to this URL during the wget command.</small>
+        <label for="url" class="form-label">URL:</label>
+        <input type="url" class="form-control" id="url" name="url" required>
     </div>
-
     <div class="mb-3">
-        <label for="filename" class="form-label">Desired Filename (in <code>{{ temp_dir }}</code> and for the link):</label>
-        <input type="text" class="form-control" id="filename" name="filename" required pattern="[a-zA-Z0-9._-]+" placeholder="myfile.zip">
-         <small class="form-text text-muted">Required. Use safe characters only (letters, numbers, dot, underscore, hyphen). No spaces or slashes.</small>
+        <label for="filename" class="form-label">Filename:</label>
+        <input type="text" class="form-control" id="filename" name="filename" required>
     </div>
-
     <div class="mb-3">
-        <label for="target_dir_rel" class="form-label">Target Directory for Symbolic Link:</label>
+        <label for="target_dir_rel" class="form-label">Target Directory:</label>
         <select class="form-select" id="target_dir_rel" name="target_dir_rel" required>
             <option value="" selected disabled>-- Select a directory --</option>
             <option value=".">Root ({{ root_dir_short }}/)</option>
@@ -28,10 +28,88 @@
                 <option value="{{ dir_path }}">{{ root_dir_short }}/{{ dir_path }}/</option>
             {% endfor %}
         </select>
-         <small class="form-text text-muted">The symbolic link <code>{{ temp_dir }}/<filename></code> → <code>{{ root_dir_short }}/<target_dir>/<filename></code> will be created.</small>
     </div>
-
-    <button type="submit" class="btn btn-primary"><i class="fas fa-download"></i> Download and Create Link</button>
+    <button type="submit" class="btn btn-primary"><i class="fas fa-download"></i> Download & Link</button>
 </form>
 
+<div class="progress mt-4" style="height: 25px;">
+    <div id="downloadProgress" class="progress-bar" role="progressbar" style="width: 0%">0%</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const models = {
+    "Model A": {
+        url: "https://example.com/model-a.bin",
+        filename: "model-a.bin",
+        directory: "example_subdir"
+    },
+    "Model B": {
+        url: "https://example.com/model-b.bin",
+        filename: "model-b.bin",
+        directory: "."
+    },
+    "Model C": {
+        url: "https://example.com/model-c.bin",
+        filename: "model-c.bin",
+        directory: "example_subdir"
+    }
+};
+
+const token = "{{ token }}";
+const progress = document.getElementById('downloadProgress');
+const modelList = document.getElementById('modelList');
+
+for (const [name, model] of Object.entries(models)) {
+    const btn = document.createElement('button');
+    btn.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center";
+    btn.textContent = name;
+    btn.addEventListener('click', async () => {
+        progress.style.width = '0%';
+        progress.textContent = '0%';
+        progress.classList.remove('bg-success');
+
+        const formData = new FormData();
+        formData.append('url', model.url);
+        formData.append('filename', model.filename);
+        formData.append('target_dir_rel', model.directory);
+
+        await fetch(`/download?token=${token}`, {
+            method: 'POST',
+            body: formData
+        });
+
+        progress.style.width = '100%';
+        progress.textContent = '100%';
+        progress.classList.add('bg-success');
+    });
+    modelList.appendChild(btn);
+}
+
+document.getElementById('manualForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const url = document.getElementById('url').value;
+    const filename = document.getElementById('filename').value;
+    const directory = document.getElementById('target_dir_rel').value;
+
+    progress.style.width = '0%';
+    progress.textContent = '0%';
+    progress.classList.remove('bg-success');
+
+    const formData = new FormData();
+    formData.append('url', url);
+    formData.append('filename', filename);
+    formData.append('target_dir_rel', directory);
+
+    await fetch(`/download?token=${token}`, {
+        method: 'POST',
+        body: formData
+    });
+
+    progress.style.width = '100%';
+    progress.textContent = '100%';
+    progress.classList.add('bg-success');
+});
+</script>
 {% endblock %}
